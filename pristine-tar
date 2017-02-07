@@ -317,11 +317,18 @@ sub recreatetarball {
 		$subdir="/$subdir";
 	}
 
-	if (! $options{clobber_source}) {
-		doit("cp", "-a", $source, "$tempdir/workdir$subdir");
+	doit("mkdir", "$tempdir/workdir");
+	foreach my $file (@manifest) {
+		my $unquoted_file = unquote_filename($file);
+		if (-d "$source/$unquoted_file") {
+			doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
+		}
+		else {
+			doit("cp", "-d", "--preserve=all", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
+		}
 	}
-	else {
-		doit("mv", $source, "$tempdir/workdir$subdir");
+	if ($options{clobber_source}) {
+		doit("rm", "-rf", $source);
 	}
 
 	# It's important that this create an identical tarball each time
@@ -501,7 +508,7 @@ sub genmanifest {
 	my $tarball=shift;
 	my $manifest=shift;
 
-	open(IN, "tar --quoting-style=escape -tf $tarball |") || die "tar tf: $!";
+	open(IN, "tar --quoting-style=literal -tf $tarball |") || die "tar tf: $!";
 	open(OUT, ">", $manifest) || die "$!";
 	while (<IN>) {
 		chomp;

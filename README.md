@@ -1,4 +1,4 @@
-# pristine-tar-rsync
+# pristine-tar-fwu
 A fork of https://joeyh.name/code/pristine-tar adapoted for performing delta updates in embedded systems.
 
 ## Changes made
