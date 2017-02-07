@@ -324,7 +324,7 @@ sub recreatetarball {
 			doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
 		}
 		else {
-			doit("cp", "-d", "--preserve=all", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
+			doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
 		}
 	}
 	if ($options{clobber_source}) {
