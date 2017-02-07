@@ -1,0 +1,7 @@
+#!/bin/sh
+
+exec 2>&1
+set -ex
+
+export PRISTINE_ALL_XDELTA=xdelta
+exec perl test.pl

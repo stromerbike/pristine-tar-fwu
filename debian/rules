@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+bindnow,+pie
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# keeps it out of /usr/local
+	dh_auto_configure -- PREFIX=/usr
+
+override_dh_auto_build:
+	dh_auto_build -- $(shell dpkg-buildflags --export=cmdline)
+
+override_dh_auto_clean:
+	# distclean moans about MANIFEST, this is quieter
+	if [ -e Makefile ]; then $(MAKE) realclean; fi
+
+override_dh_makeshlibs:
+	# only contains private libraries
+

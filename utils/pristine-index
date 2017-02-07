@@ -1,0 +1,134 @@
+#!/usr/bin/env python3.5
+
+from subprocess import PIPE, STDOUT, check_output, Popen
+from os.path import join
+import tempfile
+import os
+import sqlite3
+import time
+import re
+import sys
+from datetime import datetime
+from gzip import GzipFile
+
+TMPDIR = tempfile.TemporaryDirectory()
+
+version_rex = re.compile(rb'^pristine-tar \((.+?)\).+')
+def pristine_tar_version():
+    # we want to have fresh info, so we read this every time
+    with GzipFile('/usr/share/doc/pristine-tar/changelog.gz') as f:
+        line = f.readline()
+        m = version_rex.match(line)
+        assert m
+        return m.group(1)
+
+class DbLog:
+
+    def save(self, path, tarball, result, t):
+        log("{}: {} => {} ({:.2f} s)", path, tarball, result, t)
+
+    def skip(self, path, tarball):
+        return False
+
+CREATE = """
+  CREATE TABLE IF NOT EXISTS executions
+  (t REAL, path TEXT, tarball TEXT, success BOOLEAN, version TEXT, duration REAL);
+"""
+
+
+class Db:
+
+    def __init__(self, path, skip_newer_than):
+        self.path = path
+        self.db = sqlite3.connect(path)
+        self.db.execute(CREATE)
+        self.max_age = skip_newer_than
+
+    def skip(self, path, tarball):
+        res = self.db.execute('''select MAX(t) from executions where path = ? and tarball = ?''',
+                              (path, tarball))
+        best = res.fetchone()[0]
+        if best is None:
+            # not present
+            return False
+        now = datetime.utcnow().timestamp()
+        return (best + self.max_age >= now)
+
+    def save(self, path, tarball, result, t):
+        now = datetime.utcnow().timestamp()
+        version = pristine_tar_version()
+        log('Saving {} => {} with {}', path, tarball, 'success' if result else 'failure')
+        self.db.execute('''
+            insert into executions (t, path, tarball, success, version, duration)
+            values (?, ?, ?, ?, ?, ?)''', (now, path, tarball, result, version, t))
+        self.db.commit()
+
+def get_pristines(path):
+    files = check_output('pristine-tar list'.split(), cwd = path)
+    files = files.strip().split(b'\n')
+    return [ f for f in files if len(f.strip()) > 0 ]
+
+VERBOSE = False
+def set_verbose(value):
+    global VERBOSE
+    VERBOSE = value
+
+def log(msg, *vals):
+    if VERBOSE:
+        print(msg.format(*vals))
+
+def try_checkout(path, name):
+    try:
+        tmp_name = join(bytes(TMPDIR.name, 'utf8'), name)
+        cmd = ['pristine-tar', 'checkout', tmp_name]
+        log('Running: {}', cmd)
+        t = time.monotonic()
+        p = Popen(cmd, cwd = path, stdout = PIPE, stderr = STDOUT,
+                  close_fds = True)
+        output, _ = p.communicate()
+        duration = time.monotonic() - t
+    finally:
+        check_output(['rm', '-f', tmp_name], cwd = path)
+    return output, p.returncode == 0, duration
+
+def try_all_checkouts(path, db):
+    pristines = get_pristines(path)
+    for tarball in pristines:
+        if db.skip(path, tarball):
+            log('Skipping {} => {}', path, tarball)
+            continue
+        log('Checking {} => {}', path, tarball)
+        out, result, t = try_checkout(path, tarball)
+        db.save(path, tarball, result, t)
+
+def is_pristine_path(path):
+    git = join(path, b'.git')
+    if os.path.isdir(git):
+        return True
+    else:
+        return False
+        
+def try_all_tree(path, db):
+    path = os.path.abspath(path)
+    for cd, fs, ds in os.walk(bytes(path)):
+        if is_pristine_path(cd):
+            try_all_checkouts(cd, db)
+
+# path = b'/home/toma/projects/debian/pkgs/fasm'
+def main():
+    import argparse
+    day = 60 * 3600 * 24
+    parser = argparse.ArgumentParser(description = 'Crawl pristine-all executions.')
+    parser.add_argument('--db', metavar='PATH', type=str, default = 'pristine.sql', help = 'store results here')
+    parser.add_argument('--verbose', action='store_true', help = 'be verbose')
+    subparsers = parser.add_subparsers(help='operations', dest = 'action')
+    parser_crawl = subparsers.add_parser('crawl', help='crawl path')
+    parser_crawl.add_argument('--age', metavar='N', type=int, default = 365, help = 'reindex older than N days')
+    parser_crawl.add_argument('path', metavar='PATH', type=str, help = 'path tree to process')
+    args = parser.parse_args()
+    set_verbose(args.verbose)
+    if args.action == 'crawl':
+        db = Db(args.db, args.age * day)
+        try_all_tree(bytes(args.path, 'utf8'), db)
+
+main()

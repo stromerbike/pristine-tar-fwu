@@ -1,0 +1,37 @@
+
+have()
+{
+    unset -v have
+    # Completions for system administrator commands are installed as well in
+    # case completion is attempted via `sudo command ...'.
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type $1 &>/dev/null &&
+    have="yes"
+}
+
+have pristine-tar && 
+_pristine_tar()
+{
+  COMPREPLY=()
+  _get_comp_words_by_ref -n : cur prev
+  #cur=`_get_cword :`
+  #prev=`_get_pword`
+
+  if [[ "$cur" == -* ]]; then
+    COMPREPLY=( $( compgen -W '-v -d -f' -- "$cur" ) )
+    return 0
+  fi
+
+  if [[ "$prev" == 'pristine-tar' ]]; then
+    COMPREPLY=( $( compgen -W 'gendelta gentar commit checkout verify list' -- "$cur" ))
+    return 0
+  fi
+
+  # else, complete with tarball names that pristine-tar knows about
+  dirname=$(dirname "$cur")
+  COMPREPLY=( $(compgen -W "$(git ls-tree --name-only pristine-tar 2>/dev/null | sed '/\.id$/!d; s/\.id$//' | xargs -n 1 printf "$dirname/%s\n")" -- "$cur" ) )
+
+} &&
+complete -F _pristine_tar pristine-tar
+
+unset -f have
+# vim: ft=sh
