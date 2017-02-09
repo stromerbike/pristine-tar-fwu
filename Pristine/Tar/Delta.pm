@@ -36,7 +36,7 @@ sub write {
 	my $deltafile=shift;
 	my $delta=shift;
 
-	my $tempdir=tempdir();
+	my $tempdir=tempdir_delta();
 
 	my $stdout=0;
 	if ($deltafile eq "-") {
@@ -59,7 +59,7 @@ sub read {
 	my $type=shift;
 	my $deltafile=shift;
 	
-	my $tempdir=tempdir();
+	my $tempdir=tempdir_delta();
 
 	my $stdin=0;
 	if ($deltafile eq "-") {

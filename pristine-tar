@@ -170,6 +170,18 @@ index; none of that will be touched by "checkout" or "commit".
 
 Specifies a location to place temporary files, other than the default.
 
+=item B<TMPDIR_DELTA>
+
+Specifies a location to place temporary delta files, other than the TMPDIR.
+
+=item B<TMPDIR_SRC>
+
+Specifies a location to place temporary source files, other than the TMPDIR.
+
+=item B<TMPDIR_TAR>
+
+Specifies a location to place temporary tar files, other than the TMPDIR.
+
 =item B<PRISTINE_ALL_XDELTA>
 
 Defines the underlying binary delta tool to be used for new deltas. Supported
@@ -276,7 +288,7 @@ sub recreatetarball {
 	my $source=shift;
 	my %options=@_;
 
-	my $tempdir=tempdir();
+	my $tempdir=tempdir_src();
 
 	my @manifest;
 	open (IN, "<", $manifestfile) || die "$manifestfile: $!";
@@ -405,13 +417,13 @@ sub recreatetarball {
 
 sub recreatetarball_helper {
 	my %options=@_;
-	my $tempdir=$recreatetarball_tempdir;
+	my $tempdir=tempdir_tar();
 
 	my $ret="$tempdir/recreatetarball";
 	my @cmd=($tar_program, "cf", $ret, "--owner", 0, "--group", 0,
-			"--numeric-owner", "-C", "$tempdir/workdir",
+			"--numeric-owner", "-C", "$recreatetarball_tempdir/workdir",
 			"--no-recursion", "--mode", "0755",
-			"--files-from", "$tempdir/manifest");
+			"--files-from", "$recreatetarball_tempdir/manifest");
 	if (exists $options{tar_format}) {
 		push @cmd, ("-H", $options{tar_format});
 	}
