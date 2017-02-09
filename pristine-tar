@@ -410,7 +410,7 @@ sub recreatetarball_helper {
 	my $ret="$tempdir/recreatetarball";
 	my @cmd=($tar_program, "cf", $ret, "--owner", 0, "--group", 0,
 			"--numeric-owner", "-C", "$tempdir/workdir",
-			"--no-recursion", "--mode", "0644",
+			"--no-recursion", "--mode", "0755",
 			"--files-from", "$tempdir/manifest");
 	if (exists $options{tar_format}) {
 		push @cmd, ("-H", $options{tar_format});
