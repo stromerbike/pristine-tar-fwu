@@ -26,7 +26,7 @@ sub write {
 		}
 	}
 
-	doit("tar", "czf", $deltafile, "-C", $tempdir, keys %$delta);
+	doit("tar", "cJf", $deltafile, "-C", $tempdir, keys %$delta);
 
 	return $delta;
 }
