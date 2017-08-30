@@ -297,7 +297,7 @@ sub recreatetarball {
 		push @manifest, $_;
 	}
 	close IN;
-	link($manifestfile, "$tempdir/manifest") || die "link $tempdir/manifest: $!";
+	symlink($manifestfile, "$tempdir/manifest") || die "symlink $tempdir/manifest: $!";
 
 	# The manifest and source should have the same filenames,
 	# but the manifest probably has all the files under a common
