@@ -332,11 +332,16 @@ sub recreatetarball {
 	doit("mkdir", "$tempdir/workdir");
 	foreach my $file (@manifest) {
 		my $unquoted_file = unquote_filename($file);
-		if (-d "$source/$unquoted_file") {
-			doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
+		if (-e "$source/$unquoted_file") {
+			if (! -l "$source/$unquoted_file" && -d "$source/$unquoted_file") {
+				doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
+			}
+			else {
+				doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
+			}
 		}
 		else {
-			doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
+			error "Failed to find $source/$unquoted_file in source directory.";
 		}
 	}
 	if ($options{clobber_source}) {
