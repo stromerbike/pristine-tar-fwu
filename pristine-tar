@@ -329,21 +329,8 @@ sub recreatetarball {
 		$subdir="/$subdir";
 	}
 
-	doit("mkdir", "$tempdir/workdir");
-	foreach my $file (@manifest) {
-		my $unquoted_file = unquote_filename($file);
-		if (-e "$source/$unquoted_file") {
-			if (! -l "$source/$unquoted_file" && -d "$source/$unquoted_file") {
-				doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
-			}
-			else {
-				doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
-			}
-		}
-		else {
-			error "Failed to find $source/$unquoted_file in source directory.";
-		}
-	}
+	doit("rsync", "-a", "--delete", "--files-from=$tempdir/manifest", "$source", "$tempdir/workdir$subdir");
+
 	if ($options{clobber_source}) {
 		doit("rm", "-rf", $source);
 	}
