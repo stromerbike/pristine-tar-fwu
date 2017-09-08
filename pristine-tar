@@ -329,8 +329,16 @@ sub recreatetarball {
 		$subdir="/$subdir";
 	}
 
-	doit("rsync", "-a", "--delete", "--files-from=$tempdir/manifest", "$source", "$tempdir/workdir$subdir");
-
+	doit("mkdir", "$tempdir/workdir");
+	foreach my $file (@manifest) {
+		my $unquoted_file = unquote_filename($file);
+		if (! -l "$source/$unquoted_file" && -d "$source/$unquoted_file") {
+			doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
+		}
+		else {
+			doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
+		}
+	}
 	if ($options{clobber_source}) {
 		doit("rm", "-rf", $source);
 	}
