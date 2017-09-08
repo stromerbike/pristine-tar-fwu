@@ -2,7 +2,7 @@
 
 test_700448() {
   # pristine-tar list should work with empty repo
-  git_init pkg  
+  git_init pkg
   assertSuccess pristine-tar list
 }
 
@@ -31,6 +31,15 @@ test_798641() {
   assertFailure pristine-tar list
   assertFailure pristine-tar checkout "$(basename $tarball)"
   assertFailure pristine-tar commit "$tarball"
+}
+
+test_851286() {
+  # tarballs with files starting with "-" should work
+  local orig_tarball="$SAMPLES/tarballs/libinotify-kqueue_20120419.orig.tar.xz"
+  
+  git_init pkg
+  import_tarball "$orig_tarball"
+  pristine-tar commit "$orig_tarball"
 }
 
 . shunit2

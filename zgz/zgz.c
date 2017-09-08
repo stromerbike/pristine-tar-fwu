@@ -71,7 +71,7 @@
 #include <getopt.h>
 #include <time.h>
 
-extern void gnuzip(int in, int out, char *origname, unsigned long timestamp, int level, int osflag, int rsync, int newrsync);
+extern void gnuzip(int in, int out, char *origname, unsigned long timestamp, int level, int osflag, int rsync, int rsync14, int rsync16);
 extern void old_bzip2(int level);
 
 #define BUFLEN		(64 * 1024)
@@ -157,6 +157,7 @@ static const struct option longopts[] = {
 	{ "zlib",               no_argument,            0,      'Z' },
 	{ "rsyncable",          no_argument,            0,      'R' },
 	{ "new-rsyncable",      no_argument,            0,      'r' },
+	{ "16-rsyncable",       no_argument,            0,      'D' },
 	{ "no-timestamp",	no_argument,		0,	'm' },
 	{ "force-timestamp",	no_argument,		0,	'M' },
 	{ "timestamp",		required_argument,	0,	'T' },
@@ -190,7 +191,8 @@ main(int argc, char **argv)
 	int level = 6;
 	int osflag = GZIP_OS_UNIX;
 	int rsync = 0;
-	int new_rsync = 0;
+	int rsync14 = 0;
+	int rsync16 = 0;
 	int ch;
 
 	if (strcmp(progname, "gunzip") == 0 ||
@@ -292,7 +294,10 @@ main(int argc, char **argv)
 			rsync = 1;
 			break;
 		case 'r':
-			new_rsync = 1;
+			rsync14 = 1;
+			break;
+		case 'D':
+			rsync16 = 1;
 			break;
 		case 'd':
 			fprintf(stderr, "%s: decompression is not supported on this version\n", progname);
@@ -333,7 +338,7 @@ main(int argc, char **argv)
 			fprintf(stderr, "%s: quirks not supported with --gnu\n", progname);
 			return 1;
 		}
-		gnuzip(STDIN_FILENO, STDOUT_FILENO, origname, timestamp, level, osflag, rsync, new_rsync);
+		gnuzip(STDIN_FILENO, STDOUT_FILENO, origname, timestamp, level, osflag, rsync, rsync14, rsync16);
 	} else if (bzold) {
 		if (quirks) {
 			fprintf(stderr, "%s: quirks not supported with --old-bzip2\n", progname);
@@ -345,7 +350,7 @@ main(int argc, char **argv)
 	} else if (pbzsuse) {
 		rebrain("suse-bzip2", "pbzip2", level);
 	} else {
-		if (rsync || new_rsync) {
+		if (rsync || rsync14 || rsync16) {
 			fprintf(stderr, "%s: --rsyncable not supported with --zlib\n", progname);
 			return 1;
 		}

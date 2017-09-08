@@ -9,3 +9,6 @@ The delta file is designed to be checked into revision control along-side the
 upstream branch, thus allowing Debian packages to be built entirely using
 sources in revision control, without the need to keep copies of upstream
 tarballs. See `delta-format.txt` for details on the format of the delta file.
+
+An optional upstream signature may be attached to tarballs for verification
+by, for example, dpkg-source(1).

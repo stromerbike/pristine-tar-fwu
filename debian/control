@@ -1,9 +1,9 @@
 Source: pristine-tar
-Maintainer: Antonio Terceiro <terceiro@debian.org>
-Uploaders: Tomasz Buchert <tomasz@debian.org>
+Maintainer: Tomasz Buchert <tomasz@debian.org>
+Uploaders: Antonio Terceiro <terceiro@debian.org>
 Section: utils
 Priority: optional
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper (>= 10),
                dpkg-dev (>= 1.9.0),
                git,
                perl,
@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 9),
                xdelta,
                xdelta3,
                zlib1g-dev
-Standards-Version: 3.9.8
+Standards-Version: 4.0.0
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/pristine-tar.git
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/pristine-tar.git
 Homepage: http://kitenet.net/~joey/code/pristine-tar/
@@ -37,3 +37,6 @@ Description: regenerate pristine tarballs
  the upstream branch, thus allowing Debian packages to be built entirely
  using sources in revision control, without the need to keep copies of
  upstream tarballs.
+ .
+ An optional upstream signature may be attached to tarballs for verification
+ by, for example, dpkg-source(1).

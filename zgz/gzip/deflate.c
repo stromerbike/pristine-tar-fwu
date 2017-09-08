@@ -107,8 +107,16 @@ int RSYNC_WIN = 4096;
 /* Whether to enable compatability with Debian's old rsyncable patch. */
 int debian_rsyncable = 1;
 
-void disable_debian_rsyncable () {
+void set_14_rsyncable () {
 	debian_rsyncable = 0;
+	RSYNC_WIN = 8192;
+}
+
+/* gzip 1.6 uses a different rsyncable that is a hybrid between the
+ * original and the gzip 1.4 version
+ */
+void set_16_rsyncable () {
+	debian_rsyncable = 2;
 	RSYNC_WIN = 8192;
 }
 
@@ -532,9 +540,9 @@ static void rsync_roll(unsigned start, unsigned num)
 	rsync_sum += (ulg)window[i];
 	/* Old character out */
 	rsync_sum -= (ulg)window[i - RSYNC_WIN];
-	if (debian_rsyncable && rsync_chunk_end == 0xFFFFFFFFUL && RSYNC_SUM_MATCH_DEBIAN(rsync_sum))
+	if (debian_rsyncable == 1 && rsync_chunk_end == 0xFFFFFFFFUL && RSYNC_SUM_MATCH_DEBIAN(rsync_sum))
 	    rsync_chunk_end = i;
-	if (! debian_rsyncable && rsync_chunk_end == 0xFFFFFFFFUL && RSYNC_SUM_MATCH(rsync_sum))
+	if (debian_rsyncable != 1 && rsync_chunk_end == 0xFFFFFFFFUL && RSYNC_SUM_MATCH(rsync_sum))
 	    rsync_chunk_end = i;
     }
 }
@@ -650,7 +658,7 @@ static void deflate_fast(int pack_level, int rsync)
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
  */
-void gnu_deflate(int pack_level, int rsync, int newrsync)
+void gnu_deflate(int pack_level, int rsync, int rsync14, int rsync16)
 {
     IPos hash_head;          /* head of hash chain */
     IPos prev_match;         /* previous match */
@@ -658,11 +666,16 @@ void gnu_deflate(int pack_level, int rsync, int newrsync)
     int match_available = 0; /* set if previous match exists */
     register unsigned match_length = MIN_MATCH-1; /* length of best match */
 
-    /* The newrsync mode superscedes Debian's old, somewhat broken
+    /* The rsync14 mode superscedes Debian's old, somewhat broken
      * rsync patch. */
-    if (newrsync) {
+    if (rsync14) {
 	    rsync=1;
-	    disable_debian_rsyncable();
+	    set_14_rsyncable();
+    }
+    /* The rsync16 mode superscedes the others yet again */
+    if (rsync16) {
+	    rsync=1;
+	    set_16_rsyncable();
     }
 
     if (pack_level <= 3) {

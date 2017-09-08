@@ -1,5 +1,5 @@
 Name: pristine-tar
-Version: 1.37
+Version: 1.39
 Release: 2%{?dist}
 Summary: Regenerate pristine tarballs
 
@@ -84,4 +84,3 @@ find %{buildroot}/usr/lib/pristine-tar/ -name '*.a' | xargs rm
 %changelog
 * Tue Feb 24 2009 Jimmy Tang <jtang@tchpc.tcd.ie> - 0.21-1
 - initial package
-

@@ -16,4 +16,18 @@ test_checkout_noop() {
   assertTrue "$tarball should not be overwritten" "test '$tarball' -ot NOW"
 }
 
+test_checkout_signature() {
+  local orig_tarball=$SAMPLES/tarballs/foo-1.0.tar.gz
+  local upstream_signature=$SAMPLES/signatures/foo-1.0.tar.gz.asc
+  local tarball=$(basename "$orig_tarball")
+  local signature=$(basename "$upstream_signature")
+
+  git_init pkg
+  import_tarball "$orig_tarball"
+  pristine-tar commit -s "${upstream_signature}" "$orig_tarball"
+
+  assertSuccess pristine-tar checkout -s "$signature" "$tarball"
+  assertTrue "$signature generated successfully" "cmp '$upstream_signature' '$signature'"
+}
+
 . shunit2

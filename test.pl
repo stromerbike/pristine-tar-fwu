@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-my $rc = 0;
+my $rc     = 0;
 my @failed = ();
 
 if (scalar(@ARGV) == 0) {

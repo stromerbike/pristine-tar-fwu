@@ -1,0 +1,17 @@
+#!/bin/bash
+# apt install perltidy
+
+function tidy {
+  echo "Tidying $@"
+  # maybe --indent-only ?
+  perltidy -b -bext=/ -i=2 --paren-tightness=2 --cuddled-else --freeze-blank-lines "$@"
+}
+
+cd "$(dirname $0)/.."
+
+tidy pristine-{gz,bz2,xz,tar}
+tidy test.pl
+
+for f in $(find Pristine | egrep 'pm$'); do
+  tidy $f
+done

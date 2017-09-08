@@ -43,4 +43,16 @@ test_gz_xdelta3() {
   assertSuccess xdelta3 printdelta delta >/dev/null
 }
 
+test_gz_135_rsyncable() {
+  assertWorksWithTarball $SAMPLES/tarballs/libinotify-kqueue-1.3.5rsyncable_20120419.orig.tar.gz
+}
+
+test_gz_14_rsyncable() {
+  assertWorksWithTarball $SAMPLES/tarballs/libinotify-kqueue-1.4rsyncable_20120419.orig.tar.gz
+}
+
+test_gz_16_rsyncable() {
+  assertWorksWithTarball $SAMPLES/tarballs/libinotify-kqueue-1.6rsyncable_20120419.orig.tar.gz
+}
+
 . shunit2

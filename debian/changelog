@@ -1,3 +1,42 @@
+pristine-tar (1.41) unstable; urgency=medium
+
+  [ Tomasz Buchert ]
+  * Temporary fix for #871938: try all variants in pristine-gz
+  * Fix file checking (by Chris Lamb, closes: #867545)
+
+  [ Chris Lamb ]
+  * Support storing and retrieval of upstream signatures. (Closes: #871809)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Wed, 30 Aug 2017 00:45:02 +0200
+
+pristine-tar (1.40) unstable; urgency=medium
+
+  [ Tomasz Buchert ]
+  * pristine-tar: better file input checks (Closes: #867545)
+
+  [ Len Sorensen ]
+  * Try --gnu all the time and fix current rsyncable (Closes: #805488)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Wed, 19 Jul 2017 08:29:36 +0200
+
+pristine-tar (1.39) unstable; urgency=medium
+
+  * Use xdelta3 by default
+  * Show "pristine-tar list" items in natural order (Closes: #841526).
+  * Bump Standards-Version to 4.0.0  (no change needed)
+  * Make myself the main maintainer
+
+ -- Tomasz Buchert <tomasz@debian.org>  Sun, 02 Jul 2017 11:29:19 +0200
+
+pristine-tar (1.38) unstable; urgency=medium
+
+  * Automatic refactor of the code to make it more modern
+  * d/control: use debhelper 10
+  * Handle files prefixed with '-' in tarballs (Closes: #851286)
+  * Document --verify (Closes: #851955)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Wed, 25 Jan 2017 20:29:42 +0100
+
 pristine-tar (1.37) unstable; urgency=medium
 
   * Fix another regression for 2.0 xdelta version in pristine-tar
@@ -208,7 +247,7 @@ pristine-tar (1.18) unstable; urgency=low
 pristine-tar (1.17) unstable; urgency=low
 
   * pristine-tar: Fail when the delta is excessively large, probably
-    due to the tarball being compressed with something that tar x can 
+    due to the tarball being compressed with something that tar x can
     auto-extract, but that pristine-tar does not support.
 
  -- Joey Hess <joeyh@debian.org>  Mon, 09 Jan 2012 11:44:44 -0400
@@ -320,7 +359,7 @@ pristine-tar (1.00) unstable; urgency=low
     while listing it and decides to die at the end.
   * pristine-gz: Avoid passing -F to zgz if --original-name
     is passed. This bug prevented pristine-gz gengz from
-    recreating the gz in some cases. 
+    recreating the gz in some cases.
   * Add aliases ci and co for commit and checkout. Closes: #500388
   * pristine-gz: Fix generation of gz files that have a null filename field.
   * pristine-tar: Fix behavior in the corner case where the tarball
@@ -391,7 +430,7 @@ pristine-tar (0.19) unstable; urgency=low
 pristine-tar (0.18) unstable; urgency=low
 
   * pristine-gz: Avoid uncompressing the original file more than once.
-    Closes: #506490 
+    Closes: #506490
 
  -- Joey Hess <joeyh@debian.org>  Sat, 22 Nov 2008 18:22:40 -0500
 
@@ -532,7 +571,7 @@ pristine-tar (0.3) unstable; urgency=low
     which is the only package to have files in / in its tarball.
   * Some tarballs put files in a subdir, but don't show a "/" after the subdir
     name in a manifest. Stop relying on that. (example: streamtuner)
-  
+
   Current stats: Out of the whole debian archive, pristine-gz fails
   on 132 files, and pristine-tar fails on 0. Success with 98.97% of
   files.
