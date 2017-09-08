@@ -180,6 +180,18 @@ index; none of that will be touched by "checkout" or "commit".
 
 Specifies a location to place temporary files, other than the default.
 
+=item B<TMPDIR_DELTA>
+
+Specifies a location to place temporary delta files, other than the TMPDIR.
+
+=item B<TMPDIR_SRC>
+
+Specifies a location to place temporary source files, other than the TMPDIR.
+
+=item B<TMPDIR_TAR>
+
+Specifies a location to place temporary tar files, other than the TMPDIR.
+
 =item B<PRISTINE_ALL_XDELTA>
 
 Defines the underlying binary delta tool to be used for new deltas. Supported
@@ -290,7 +302,7 @@ sub recreatetarball {
   my $source       = shift;
   my %options      = @_;
 
-  my $tempdir = tempdir();
+  my $tempdir = tempdir_src();
 
   my @manifest;
   open(IN, "<", $manifestfile) || die "$manifestfile: $!";
@@ -299,7 +311,7 @@ sub recreatetarball {
     push @manifest, $_;
   }
   close IN;
-  link($manifestfile, "$tempdir/manifest") || die "link $tempdir/manifest: $!";
+  symlink($manifestfile, "$tempdir/manifest") || die "symlink $tempdir/manifest: $!";
 
   # The manifest and source should have the same filenames,
   # but the manifest probably has all the files under a common
@@ -329,10 +341,18 @@ sub recreatetarball {
     $subdir = "/$subdir";
   }
 
-  if (!$options{clobber_source}) {
-    doit("cp", "-a", $source, "$tempdir/workdir$subdir");
-  } else {
-    doit("mv", $source, "$tempdir/workdir$subdir");
+  doit("mkdir", "$tempdir/workdir");
+  foreach my $file (@manifest) {
+    my $unquoted_file = unquote_filename($file);
+    if (! -l "$source/$unquoted_file" && -d "$source/$unquoted_file") {
+      doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
+    }
+    else {
+      doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
+    }
+  }
+  if ($options{clobber_source}) {
+    doit("rm", "-rf", $source);
   }
 
   # It's important that this create an identical tarball each time
@@ -416,7 +436,7 @@ sub recreatetarball {
 
 sub recreatetarball_helper {
   my %options = @_;
-  my $tempdir = $recreatetarball_tempdir;
+  my $tempdir = tempdir_tar();
 
   my $ret = "$tempdir/recreatetarball";
   my @cmd = (
@@ -424,10 +444,10 @@ sub recreatetarball_helper {
     $ret,             "--owner",
     0,                "--group",
     0,                "--numeric-owner",
-    "-C",             "$tempdir/workdir",
+    "-C",             "$recreatetarball_tempdir/workdir",
     "--no-recursion", "--mode",
-    "0644",           "--verbatim-files-from",
-    "--files-from",   "$tempdir/manifest"
+    "0755",           "--verbatim-files-from",
+    "--files-from",   "$recreatetarball_tempdir/manifest"
   );
   if (exists $options{tar_format}) {
     push @cmd, ("-H", $options{tar_format});
@@ -555,7 +575,7 @@ sub genmanifest {
   my $tarball  = shift;
   my $manifest = shift;
 
-  open(IN, "tar --quoting-style=escape -tf $tarball |") || die "tar tf: $!";
+  open(IN, "tar --quoting-style=literal -tf $tarball |") || die "tar tf: $!";
   open(OUT, ">", $manifest) || die "$!";
   while (<IN>) {
     chomp;
