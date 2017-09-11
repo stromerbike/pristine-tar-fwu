@@ -10,7 +10,7 @@ use Getopt::Long;
 use IPC::Open2;
 use Exporter q{import};
 
-our @EXPORT = qw(error message debug vprint doit try_doit doit_redir
+our @EXPORT = qw(error message debug vprint cleanup doit try_doit doit_redir
   tempdir tempdir_src tempdir_tar dispatch comparefiles version_from_env
   $verbose $debug $keep);
 
@@ -38,6 +38,10 @@ sub debug {
 
 sub vprint {
   message(@_) if $verbose;
+}
+
+sub cleanup {
+  doit(@_) if !$keep;
 }
 
 sub doit {

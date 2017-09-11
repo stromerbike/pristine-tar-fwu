@@ -451,6 +451,8 @@ sub recreatetarball_helper {
 
   doit(@cmd);
 
+  cleanup("rm", "-rf", $recreatetarball_tempdir);
+
   return $ret;
 }
 
