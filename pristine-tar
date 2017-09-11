@@ -180,10 +180,6 @@ index; none of that will be touched by "checkout" or "commit".
 
 Specifies a location to place temporary files, other than the default.
 
-=item B<TMPDIR_DELTA>
-
-Specifies a location to place temporary delta files, other than the TMPDIR.
-
 =item B<TMPDIR_SRC>
 
 Specifies a location to place temporary source files, other than the TMPDIR.

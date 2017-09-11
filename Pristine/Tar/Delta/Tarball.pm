@@ -13,7 +13,7 @@ sub write {
   my $deltafile = shift;
   my $delta     = shift;
 
-  my $tempdir = tempdir_delta();
+  my $tempdir = tempdir();
 
   foreach my $field (keys %$delta) {
     if (Pristine::Tar::Delta::is_filename($field)) {
@@ -35,7 +35,7 @@ sub read {
   my $class     = shift;
   my $deltafile = shift;
 
-  my $tempdir = tempdir_delta();
+  my $tempdir = tempdir();
   doit("tar", "xf", File::Spec->rel2abs($deltafile), "-C", $tempdir);
 
   my %delta;

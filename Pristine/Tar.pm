@@ -11,7 +11,7 @@ use IPC::Open2;
 use Exporter q{import};
 
 our @EXPORT = qw(error message debug vprint doit try_doit doit_redir
-  tempdir tempdir_delta tempdir_src tempdir_tar dispatch comparefiles version_from_env
+  tempdir tempdir_src tempdir_tar dispatch comparefiles version_from_env
   $verbose $debug $keep);
 
 our $verbose = 0;
@@ -66,22 +66,26 @@ sub doit_redir {
 
 sub tempdir {
   return File::Temp::tempdir(
-    "fwu-tmp.XXXX",
-    TMPDIR  => 1,
+    "fwu-tmp.XXXXXXXXXX",
+    DIR     => $ENV{'TMPDIR'} // File::Spec->tmpdir,
     CLEANUP => !$keep
   );
 }
 
-sub tempdir_delta {
-    return $ENV{'TMPDIR_DELTA'} // tempdir();
-}
-
 sub tempdir_src {
-    return $ENV{'TMPDIR_SRC'} // tempdir();
+  return File::Temp::tempdir(
+    "fwu-src.XXXXXXXXXX",
+    DIR     => $ENV{'TMPDIR_SRC'} // File::Spec->tmpdir,
+    CLEANUP => !$keep
+  );
 }
 
 sub tempdir_tar {
-    return $ENV{'TMPDIR_TAR'} // tempdir();
+  return File::Temp::tempdir(
+    "fwu-tar.XXXXXXXXXX",
+    DIR     => $ENV{'TMPDIR_TAR'} // File::Spec->tmpdir,
+    CLEANUP => !$keep
+  );
 }
 
 # Workaround for bug #479317 in perl 5.10.

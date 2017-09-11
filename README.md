@@ -11,7 +11,7 @@ A fork of https://joeyh.name/code/pristine-tar adapted for performing over the a
 * The commands gendelta or gentar have been made more robust by only considering entries mentioned in the manifest file. This is useful when generating a tarball from an active system partition where hardware devices are mounted as files such as /sys/class/tty or /dev/tty.
 * The command gendelta has been changed to use LZMA (with compression level 9) for the generation of delta files to decrease their size.
 * All files in the recreated tarball have mode 0755 to match the original Yocto tarball as closely as possible and thus reducing the size of the delta.
-* The TMPDIR for delta, source and tar files can optionally be set via TMPDIR_DELTA, TMPDIR_SRC and TMPDIR_TAR.
+* The TMPDIR for source and tar files can optionally be set via TMPDIR_SRC and TMPDIR_TAR.
 
 ## Remarks
 * The components pristine-bz2, pristine-gz and pristine-xz have not been adapted and should not be used for updates.
