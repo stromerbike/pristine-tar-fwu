@@ -1,5 +1,5 @@
 # pristine-tar-fwu
-A fork of https://joeyh.name/code/pristine-tar adapted for performing over the air delta updates in a Yocto based embedded systems where bandwidth is sparse.
+A fork of https://joeyh.name/code/pristine-tar adapted for performing over the air delta updates in embedded systems where bandwidth is sparse.
 
 ## Goals
 * Recreation of tarballs from an active system partition (incl. root file system and additionally kernel).
