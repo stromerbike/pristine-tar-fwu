@@ -36,7 +36,7 @@ sub read {
   my $deltafile = shift;
 
   my $tempdir = tempdir();
-  doit("tar", "xf", "--warning=no-timestamp", File::Spec->rel2abs($deltafile), "-C", $tempdir);
+  doit("tar", "xf", File::Spec->rel2abs($deltafile), "-C", $tempdir, "--warning=no-timestamp");
 
   my %delta;
   foreach my $file (glob("$tempdir/*")) {
