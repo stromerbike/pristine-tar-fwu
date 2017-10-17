@@ -41,37 +41,46 @@ git_init() {
   cd "$TMPDIR"
   mkdir "$repo"
   cd "$repo"
-  git init
-  git config user.name 'Test User'
-  git config user.email 'test@example.com'
+  silent_run git init
+  silent_run git config user.name 'Test User'
+  silent_run git config user.email 'test@example.com'
   REPODIR="$TMPDIR/$repo"
 }
 
 import_tarball() {
   local tarball="$1"
   tar --strip-components=1 -xaf "$tarball"
-  git add .
-  git commit -m 'Initial commit'
-  git branch upstream
+  silent_run git add .
+  silent_run git commit -m 'Initial commit'
+  silent_run git branch upstream
 }
 
 assertHashEquals() {
-  $COMPARE "$1" "$2"
+  silent_run $COMPARE "$1" "$2"
   sha1_1=$(get_sha1 "$1")
   sha1_2=$(get_sha1 "$2")
   assertEquals "$sha1_1" "$sha1_2"
 }
 
 assertSuccess() {
-  (>&2 echo "I: assertSuccess($@)")
-  "$@"
+  silent_run "$@"
   rc=$?
   assertEquals 0 "$rc"
 }
 
 assertFailure() {
-  (>&2 echo "I: assertFailure($@)")
-  "$@"
+  silent_run "$@"
   rc=$?
   assertNotEquals 0 "$rc"
+}
+
+silent_run() {
+  local rc
+  rc=0
+  "$@" > log 2>&1 || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    cat log
+  fi
+  rm -f log
+  return "$rc"
 }

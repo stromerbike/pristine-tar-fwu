@@ -9,8 +9,8 @@ assertWorksWithTarball() {
 
   import_tarball "$orig_tarball"
 
-  pristine-tar commit "$orig_tarball"
-  pristine-tar checkout "$tarball"
+  silent_run pristine-tar commit "$orig_tarball"
+  silent_run pristine-tar checkout "$tarball"
 
   assertHashEquals "$orig_tarball" "$tarball"
 }
@@ -31,7 +31,7 @@ test_gz_xdelta3() {
   # test roundtrip with xdelta3 program
   PRISTINE_ALL_XDELTA=xdelta3 assertWorksWithTarball $SAMPLES/tarballs/foo-1.0.tar.gz
   # check whether really xdelta3 is used here
-  git checkout pristine-tar
+  silent_run git checkout pristine-tar
   tar -xOf foo-1.0.tar.gz.delta version > version
   # check pristine-tar delta version
   assertSuccess grep 3 version

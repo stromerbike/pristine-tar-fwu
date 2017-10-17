@@ -6,7 +6,7 @@ assertReproduces() {
   local compression="$1"
   tar xaf $SAMPLES/1.33/foo.tar.${compression}
   cd foo-${compression}
-  pristine-tar checkout foo-1.0.tar.${compression}
+  silent_run pristine-tar checkout foo-1.0.tar.${compression}
   assertHashEquals foo-1.0.tar.${compression} $SAMPLES/tarballs/foo-1.0.tar.${compression}
 }
 

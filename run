@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -eu
+
+basedir="$(dirname "$0")"
+
+export PRISTINE_TAR_VERSION="$(cd "$basedir" && git describe --tags 2>/dev/null| sed -e 's#debian/##')"
+export PATH="$basedir:$PATH"
+export PERL5LIB="$basedir"
+
+exec "$@"

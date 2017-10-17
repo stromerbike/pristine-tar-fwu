@@ -51,7 +51,7 @@ params
 	compressed file), and its matching parameter stored: -N.
 	In some cases a -bN parameter is detected and stored.
 program
-	Program used to compress. Almost everytime, it is bzip2 (or another
+	Program used to compress. Almost every time, it is bzip2 (or another
 	implementation producing bit-identical results). pbzip2 might also be
 	detected, but several parameters might interfere (-r, -pN).
 
@@ -66,4 +66,4 @@ version
 params
 	Typically, only the compression level is needed.
 program
-	Program used to compress. Almost everytime, it is xz.
+	Program used to compress. Almost every time, it is xz.

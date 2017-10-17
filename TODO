@@ -12,7 +12,7 @@
   with a list of all the files and md5sums..
 
 * Optimisation: Enhance zgz so it runs multiple compression alternatives
-  block-by-block in parallell, aborting compressors when they differ
+  block-by-block in parallel, aborting compressors when they differ
   from the target file.
 
 * Add binary deltas for unreproducible bz2 files. (But currently, only two

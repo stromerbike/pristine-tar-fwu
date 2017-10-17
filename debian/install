@@ -1,1 +1,2 @@
 bash_completion/pristine-tar    usr/share/bash-completion/completions/
+debian/presubj                  /usr/share/bug/pristine-tar/

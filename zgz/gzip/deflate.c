@@ -104,7 +104,7 @@
 int RSYNC_WIN = 4096;
 /* Size of rsync window, must be < MAX_DIST */
 
-/* Whether to enable compatability with Debian's old rsyncable patch. */
+/* Whether to enable compatibility with Debian's old rsyncable patch. */
 int debian_rsyncable = 1;
 
 void set_14_rsyncable () {

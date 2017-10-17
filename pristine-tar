@@ -6,17 +6,17 @@ pristine-tar - regenerate pristine tarballs
 
 =head1 SYNOPSIS
 
-B<pristine-tar> [-vdk] gendelta I<tarball> I<delta>
+B<pristine-tar> [OPTIONS] gendelta I<tarball> I<delta>
 
-B<pristine-tar> [-vdk] gentar I<delta> I<tarball>
+B<pristine-tar> [OPTIONS] gentar I<delta> I<tarball>
 
-B<pristine-tar> [-vdk] [-m message] [-s signaturefile] commit I<tarball> [I<upstream>]
+B<pristine-tar> [OPTIONS] commit I<tarball> [I<upstream>]
 
-B<pristine-tar> [-vdk] checkout I<tarball>
+B<pristine-tar> [OPTIONS] checkout I<tarball>
 
-B<pristine-tar> [-vdk] list
+B<pristine-tar> [OPTIONS] list
 
-B<pristine-tar> [-vdk] verify I<tarball>
+B<pristine-tar> [OPTIONS] verify I<tarball>
 
 =head1 DESCRIPTION
 
@@ -35,9 +35,7 @@ and xz files.
 
 =head1 COMMANDS
 
-=over 4
-
-=item pristine-tar gendelta I<tarball> I<delta>
+=head2 pristine-tar gendelta I<tarball> I<delta>
 
 This takes the specified upstream I<tarball>, and generates a small binary
 delta file that can later be used by pristine-tar gentar to recreate the
@@ -45,7 +43,7 @@ tarball.
 
 If the delta filename is "-", it is written to standard output.
 
-=item pristine-tar gentar I<delta> I<tarball>
+=head2 pristine-tar gentar I<delta> I<tarball>
 
 This takes the specified I<delta> file, and the files in the current
 directory, which must have identical content to those in the upstream
@@ -53,7 +51,7 @@ tarball, and uses these to regenerate the pristine upstream I<tarball>.
 
 If the delta filename is "-", it is read from standard input.
 
-=item pristine-tar commit I<tarball> [I<upstream>]
+=head2 pristine-tar commit I<tarball> [I<upstream>]
 
 B<pristine-tar commit> generates a pristine-tar delta file for the specified
 I<tarball>, and commits it to version control. The B<pristine-tar checkout>
@@ -75,26 +73,24 @@ branch is created or updated as needed to add each new delta.
 If I<tarball> already exists previously, it will only be overwritten if it does
 not match a hash of the tarball that has been committed to version control.
 
-=item pristine-tar checkout I<tarball>
+=head2 pristine-tar checkout I<tarball>
 
 This regenerates a copy of the specified I<tarball> using information
 previously saved in version control by B<pristine-tar commit>.
 
-=item pristine-tar list
+=head2 pristine-tar list
 
 This lists tarballs that pristine-tar is able to checkout from version
 control.
 
-=item pristine-tar verify I<tarball>
+=head2 pristine-tar verify I<tarball>
 
 Verifies whether an existing I<tarball> matches the one that has been committed
 to version control.
 
-=back
-
 =head1 OPTIONS
 
-=over 4
+=over
 
 =item -v
 
@@ -120,6 +116,8 @@ Don't clean up the temporary directory on exit.
 
 Use this option to specify a custom commit message to pristine-tar commit.
 
+Applies to the B<commit> command.
+
 =item -s signaturefile
 
 =item --signature-file=signaturefile
@@ -127,6 +125,56 @@ Use this option to specify a custom commit message to pristine-tar commit.
 Use this option to optionally commit or checkout an upstream signature
 file for the tarball. Note that extraction of signatures is not
 performed by default.
+
+Applies to the B<commit> and B<checkout> commands.
+
+=item -r
+
+=item --recompress
+
+Use this option to tell pristine-tar that it is OK to recompress the tarball if
+1) the tarball can't be regenerated or 2) the delta file produced from the
+original tarball is larger than a given threshold (see also
+I<-B>/I<--recompress-threshold-bytes> and
+I<-T>/I<--recompress-threshold-percent>).
+
+B<Note that this modifies the original tarball on disk>, and you probably
+shouldn't use it if you are also storing a upstream GPG signature of the
+original tarball (see I<--signature-file>).
+
+On the other hand, the actual contents of the tarball stored by pristine-tar
+B<will> be identical to the content of the upstream original tarbal even if
+the compressed tarball itself won't be bit-by-bit identical to the one released
+by upstream.
+
+A copy of the original tarball will be saved with ".backup" added to its
+filename.
+
+Applies to the B<commit> and B<gendelta> commands.
+
+=item -B N
+
+=item --recompress-threshold-bytes=N
+
+Recompress original tarball if the generated delta is larger then I<N> bytes.
+Default: 524288000 (500 kB).
+
+If this option is passed explicitly in the command line, it implies
+I<--recompress>.
+
+Applies to the B<commit> and B<gendelta> commands.
+
+=item -P N
+
+=item --recompress-threshold-percent=N
+
+Recompress original tarball if the generated delta is larger than I<N>% of the
+size of the original tarball. Default: 30.
+
+If this option is passed explicitly in the command line, it implies
+I<--recompress>.
+
+Applies to the B<commit> and B<gendelta> commands.
 
 =back
 
@@ -145,22 +193,22 @@ are planning for version 2.0.
 The solution is to use pristine-tar to commit a delta file that efficiently
 stores enough information to reproduce the tarball later.
 
-	cd hello
-	git tag -s 1.0
-	pristine-tar commit ../hello-1.0.tar.gz 1.0
+    cd hello
+    git tag -s 1.0
+    pristine-tar commit ../hello-1.0.tar.gz 1.0
 
 Remember to tell git to push both the pristine-tar branch, and your tag:
 
-	git push --all --tags
+    git push --all --tags
 
 Now it is a year later. The worst has come to pass; the "forge" lost
 all its data, you deleted the tarballs to make room for bug report emails,
 and you want to regenerate them. Happily, the git repository is still
 available.
 
-	git clone git://github.com/joeyh/hello.git
-	cd hello
-	pristine-tar checkout ../hello-1.0.tar.gz
+    git clone git://github.com/joeyh/hello.git
+    cd hello
+    pristine-tar checkout ../hello-1.0.tar.gz
 
 =head1 LIMITATIONS
 
@@ -174,11 +222,19 @@ index; none of that will be touched by "checkout" or "commit".
 
 =head1 ENVIRONMENT
 
-=over 4
+=over
 
 =item B<TMPDIR>
 
 Specifies a location to place temporary files, other than the default.
+
+=item B<PRISTINE_TAR>
+
+Defines command line options to be assumed by pristine-tar. Any options passed
+explicitly on the command line will override those.
+
+Options will be split on whitespaces, so if you want to pass an option that
+needs an argument, use the I<--opt=arg> syntax instead of I<--opt arg>.
 
 =item B<PRISTINE_ALL_XDELTA>
 
@@ -219,7 +275,7 @@ $ENV{LANG} = 'C';
 delete $ENV{TAR_OPTIONS};
 delete $ENV{TAPE};
 
-# Ask tar to please be compatable with version 1.26.
+# Ask tar to please be compatible with version 1.26.
 # In version 1.27, it changed some fields used in longlink entries.
 $ENV{PRISTINE_TAR_COMPAT} = 1;
 
@@ -235,9 +291,14 @@ use constant {
   XDELTA_LONG => "2.0"
 };
 
+my $recompress = 0;
+my $recompress_theshold_bytes = 524288000;
+my $recompress_theshold_percent = 30;
 my ($message, $signature_file);
 my $genversion =
   version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
+
+unshift(@ARGV, split(/\s+/, $ENV{PRISTINE_TAR} || ''));
 
 dispatch(
   commands => {
@@ -254,19 +315,35 @@ dispatch(
   options => {
     "m|message=s"        => \$message,
     "s|signature-file=s" => \$signature_file,
+    "r|recompress!"      => \$recompress,
+    "B|recompress-threshold-bytes=i" => \$recompress_theshold_bytes,
+    "P|recompress-threshold-percent=i" => \$recompress_theshold_percent,
   },
 );
 
 sub usage {
-  print STDERR "Usage: pristine-tar [-vdk] gendelta tarball delta\n";
-  print STDERR "       pristine-tar [-vdk] gentar delta tarball\n";
-  print STDERR
-"       pristine-tar [-vdk] [-m message] [-s signaturefile] commit tarball [upstream]\n";
-  print STDERR
-    "       pristine-tar [-vdk] [-s signaturefile] checkout tarball\n";
-  print STDERR "       pristine-tar [-vdk] verify tarball\n";
-  print STDERR "       pristine-tar        list\n";
-  exit 1;
+  print STDERR "Usage: pristine-tar [OPTIONS] gendelta tarball delta
+       pristine-tar [OPTIONS] gentar delta tarball\
+       pristine-tar [OPTIONS] commit tarball [upstream]
+       pristine-tar [OPTIONS] checkout tarball
+       pristine-tar [OPTIONS] verify tarball
+       pristine-tar [OPTIONS] list
+Options:
+       -d, --debug               Turn on debugging output
+       -v, --verbose             Turn on verbose output
+       -k, --keep                Don't delete temporary files
+       -h, --help                Display usage information
+       -m MSG, --message=MSG     Set commit message
+       -s SIG, --signature-file  Set signature file to be stored
+                                 together with the tarball
+       -r, --recompress          Recompress original tarball if needed
+       -B N, --recompress-threshold-bytes=N
+                                 Recompress tarball if the delta file is
+                                 larger than N bytes.
+       -B N, --recompress-threshold-percent=N
+                                 Recompress tarball if the delta file is
+                                 larger than N% of the tarball size.
+";
 }
 
 sub unquote_filename {
@@ -567,6 +644,8 @@ sub genmanifest {
   close OUT;
 }
 
+my $recompressed = 0;
+
 sub gendelta {
   my $tarball   = shift;
   my $deltafile = shift;
@@ -607,15 +686,27 @@ sub gendelta {
   # store a hash of the original tarball
   $delta{sha256sum} = get_sha256sum($tarball);
 
+  my $origtarball = $tarball;
+
   # Generate a wrapper file to recreate the compressed file.
   if (defined $compression) {
     $delta{wrapper} = "$tempdir/wrapper";
-    doit(
+    my @gen_wrapper = (
       "pristine-$compression", ($verbose ? "-v" : "--no-verbose"),
       ($debug ? "-d" : "--no-debug"), ($keep ? "-k" : "--no-keep"),
       "gendelta", $tarball,
       $delta{wrapper}
     );
+
+    if (try_doit(@gen_wrapper) != 0) {
+      if ($recompress && !$recompressed) {
+        recompress($tarball, 'Could not reproduce tarball as-is');
+        doit(@gen_wrapper);
+        $recompressed = 1;
+      } else {
+        exit(1);
+      }
+    }
     $tarball = "$tempdir/origtarball";
   }
 
@@ -671,6 +762,59 @@ sub gendelta {
       %delta,
     }
   );
+
+  if ($recompress && !$recompressed && defined($compression)) {
+    my $tarballsize = -s $origtarball;
+    my $deltasize= -s $deltafile;
+    if ($deltasize > $recompress_theshold_bytes || 100 * $deltasize / $tarballsize > $recompress_theshold_percent) {
+      # try again
+      recompress($origtarball, "Generated delta is too large");
+      $recompressed = 1;
+      my $newdeltafile = $deltafile . '.new';
+      gendelta($origtarball, $newdeltafile, %opts);
+      my $newdeltasize = -s $newdeltafile;
+      if ($newdeltasize < $deltasize) {
+        unlink($deltafile) or die("unlink $deltafile: $!");
+        rename($newdeltafile, $deltafile) or die("rename $newdeltafile $deltafile: $!");
+      } else {
+        unlink($newdeltafile) or die("unlink $newdeltafile: $!");
+        unlink($origtarball) or die("unlink $origtarball: $!");
+        rename($origtarball . ".backup", $origtarball) or die("rename $origtarball $origtarball.backup: $!");
+        print STDERR "warning: recompressing didn't help, delta did not get smaller\n";
+        print STDERR "         restoring original tarball\n";
+      }
+    }
+  }
+}
+
+sub recompress {
+  my $tarball = shift;
+  my $reason = shift;
+
+  my $backup = $tarball . '.backup';
+  print STDERR "warning: $reason.\n";
+  print STDERR "         Let's recompress the tarball, and try again.\n";
+  print STDERR "         The original file will be renamed to $backup.\n";
+
+  my ($uncompress, $compress);
+  if (is_gz($tarball)) {
+    $uncompress = 'gunzip';
+    $compress = 'gzip';
+  } elsif (is_bz2($tarball)) {
+    $uncompress = 'bunzip2';
+    $compress = 'bzip2';
+  } elsif (is_xz($tarball)) {
+    $uncompress = 'unxz';
+    $compress = 'xz';
+  } else {
+    error("unsupported compression: $tarball");
+  }
+
+  my $tempdir = tempdir();
+  my $tempfile = "$tempdir/uncompressed";
+  doit('mv', '-f', $tarball, $backup);
+  doit_redir($backup, $tempfile, $uncompress, '-');
+  doit_redir($tempfile, $tarball, $compress, '-');
 }
 
 sub get_sha256sum {

@@ -12,11 +12,12 @@ use Exporter q{import};
 
 our @EXPORT = qw(error message debug vprint doit try_doit doit_redir
   tempdir dispatch comparefiles version_from_env
-  $verbose $debug $keep);
+  $verbose $debug $keep $help);
 
 our $verbose = 0;
 our $debug   = 0;
 our $keep    = 0;
+our $help    = 0;
 
 sub progname {
   my $name = $0;
@@ -90,7 +91,8 @@ sub dispatch {
       %options,
       "v|verbose!" => \$verbose,
       "d|debug!"   => \$debug,
-      "k|keep!"    => \$keep
+      "k|keep!"    => \$keep,
+      "h|help!"    => \$help,
     )
     || !@ARGV
     )
@@ -98,6 +100,7 @@ sub dispatch {
     $command = "usage";
   } else {
     $command = shift @ARGV;
+    $help = 1 if ($command eq "usage");
   }
 
   my $i = $commands{$command};
@@ -109,6 +112,11 @@ sub dispatch {
   if (defined $i->[1] && @ARGV != $i->[1]) {
     $command = "usage";
     $i       = $commands{$command};
+  }
+
+  if ($help || $command eq "usage") {
+    $commands{"usage"}->[0]->(0);
+    exit($help ? 0 : 1);
   }
 
   $i->[0]->(@ARGV);

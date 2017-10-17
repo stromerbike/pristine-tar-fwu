@@ -1,3 +1,3 @@
-Tests: xdelta xdelta3
-Depends: @, shunit2, git
+Tests: xdelta xdelta3 regression-tests
+Depends: @, shunit2, git, moreutils
 Restrictions: needs-recommends

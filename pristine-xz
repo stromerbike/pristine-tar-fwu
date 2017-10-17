@@ -6,9 +6,9 @@ pristine-xz - regenerate pristine xz files
 
 =head1 SYNOPSIS
 
-B<pristine-xz> [-vdk] gendelta I<file.xz> I<delta>
+B<pristine-xz> [OPTIONS] gendelta I<file.xz> I<delta>
 
-B<pristine-xz> [-vdk] genxz I<delta> I<file>
+B<pristine-xz> [OPTIONS] genxz I<delta> I<file>
 
 =head1 DESCRIPTION
 
@@ -33,7 +33,7 @@ If the delta filename is "-", pristine-xz reads or writes it to stdio.
 
 =head1 OPTIONS
 
-=over 4
+=over
 
 =item -v
 
@@ -55,7 +55,7 @@ Try harder to determine how to generate deltas of difficult xz files.
 
 =head1 ENVIRONMENT
 
-=over 4
+=over
 
 =item B<TMPDIR>
 
@@ -97,8 +97,14 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-xz [-vdkt] gendelta file.xz delta\n";
-  print STDERR "       pristine-xz [-vdkt] genxz delta file\n";
+  print STDERR "Usage: pristine-xz [OPTIONS] gendelta file.xz delta
+       pristine-xz [OPTIONS] genxz delta file
+Options:
+       -d, --debug            Turn on debugging output
+       -v, --verbose          Turn on verbose output
+       -k, --keep             Don't delete temporary files
+       -h, --help             Display usage information
+";
 }
 
 sub assign_fields {
@@ -200,7 +206,7 @@ sub predict_xz_args {
         '64MiB' => ['9'],
       );
       $presets = $lzma2_presets_from_dict_size_of{$dict_size};
-      die "Unkown dict size: $dict_size\n"
+      die "Unknown dict size: $dict_size\n"
         if (!defined($presets));
     }
     if (scalar(@$blocks) > 1) {

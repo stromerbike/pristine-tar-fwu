@@ -1,0 +1,31 @@
+#!/bin/sh
+
+exec 2>&1
+
+set -eu
+
+if [ -z "${AUTOPKGTEST_TMP:-}" ]; then
+    AUTOPKGTEST_TMP="$(mktemp -d)"
+    trap "rm -rf $AUTOPKGTEST_TMP" INT TERM EXIT
+fi
+
+set -x
+
+cd "$AUTOPKGTEST_TMP"
+cf=no
+git clone \
+    https://anonscm.debian.org/git/collab-maint/pristine-tar-tests.git || cf=yes
+if [ "$cf" = yes ]; then
+    echo "W: Could not clone testcases repository; skipping regression tests"
+    exit 0
+fi
+
+cd pristine-tar-tests
+rc=0
+mispipe ./testall 'tee data.yaml' || rc=$?
+
+if [ -n "${AUTOPKGTEST_ARTIFACTS:-}" ]; then
+    cp data.yaml "$AUTOPKGTEST_ARTIFACTS"/
+fi
+
+exit $rc

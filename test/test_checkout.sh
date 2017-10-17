@@ -6,7 +6,7 @@ test_checkout_noop() {
 
   git_init pkg
   import_tarball "$orig_tarball"
-  pristine-tar commit "$orig_tarball"
+  silent_run pristine-tar commit "$orig_tarball"
 
   cp "$orig_tarball" "$tarball"
   touch NOW
@@ -24,7 +24,7 @@ test_checkout_signature() {
 
   git_init pkg
   import_tarball "$orig_tarball"
-  pristine-tar commit -s "${upstream_signature}" "$orig_tarball"
+  silent_run pristine-tar commit -s "${upstream_signature}" "$orig_tarball"
 
   assertSuccess pristine-tar checkout -s "$signature" "$tarball"
   assertTrue "$signature generated successfully" "cmp '$upstream_signature' '$signature'"

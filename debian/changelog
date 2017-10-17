@@ -1,3 +1,27 @@
+pristine-tar (1.42) unstable; urgency=medium
+
+  [ Antonio Terceiro ]
+  * pristine-tar: add support for recompressing tarballs as an alternative
+    when we can't regenerate the original tarball. The recompressed tarball is
+    not identical to the "real" original, but the contents will be the same.
+    This makes it possible to work with most, it not all, of the tarballs that
+    we currently would fail to reproduce.
+  * Add `run` script to run programs from a source tree/git checkout.
+  * pristine-tar: read command-line options from $PRISTINE_TAR
+  * Recommend a version of xz-utils that has --robot (Closes: #705730)
+  * pristine-*: improve manpages
+  * pristine-*: implement --help
+  * pristine-*: improve usage output
+  * Add bug-report preamble for reportbug
+  * zgz: fix typo in manpage
+  * Use external test case repository as regression test suite
+  * Bump Standards-Version to 4.1.1; no changes needed
+
+  [ Edward Betts ]
+  * correct spelling mistakes
+
+ -- Antonio Terceiro <terceiro@debian.org>  Sun, 08 Oct 2017 09:49:40 -0300
+
 pristine-tar (1.41) unstable; urgency=medium
 
   [ Tomasz Buchert ]
@@ -463,7 +487,7 @@ pristine-tar (0.14) unstable; urgency=low
 
   * Use debhelper v7; rules file minimisation.
   * Add build and install targets to Makefile.
-  * Put in a workaround for bug #479317, an incompatability in perl 5.10
+  * Put in a workaround for bug #479317, an incompatibility in perl 5.10
     that causes nonzero exit if a program exits while chdired into a
     subdirectory of a File::Temp temp directory.
 

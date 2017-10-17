@@ -25,7 +25,7 @@ Faidon Liambotis,
 Josh Triplett,
 Joey Hess
 
-Note that several of the above donors would be very suprised at finding
+Note that several of the above donors would be very surprised at finding
 parts of themselves ... er, their work ... shambling around here. Please
 direct correspondence and/or flaming pitchforks to the pristine-tar
 maintainers.

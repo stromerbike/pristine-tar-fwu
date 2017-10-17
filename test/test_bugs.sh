@@ -14,19 +14,21 @@ test_798641() {
 
   cd $r1
   import_tarball "$tarball"
-  pristine-tar commit "$tarball"
-  git remote add r2 $r2; git push r2 pristine-tar
-  git remote add r3 $r3; git push r3 pristine-tar
-  git branch -m pristine-tar tmp-branch
+  silent_run pristine-tar commit "$tarball"
+  silent_run git remote add r2 $r2
+  silent_run git push r2 pristine-tar
+  silent_run git remote add r3 $r3
+  silent_run git push r3 pristine-tar
+  silent_run git branch -m pristine-tar tmp-branch
 
   assertSuccess pristine-tar list
   assertSuccess pristine-tar checkout "$(basename $tarball)"
   assertFailure pristine-tar commit "$tarball"
 
   git branch -m tmp-branch pristine-tar
-  pristine-tar commit "$tarball"
-  git push r3 pristine-tar
-  git branch -D pristine-tar
+  silent_run pristine-tar commit "$tarball"
+  silent_run git push r3 pristine-tar
+  silent_run git branch -D pristine-tar
 
   assertFailure pristine-tar list
   assertFailure pristine-tar checkout "$(basename $tarball)"
@@ -39,7 +41,7 @@ test_851286() {
   
   git_init pkg
   import_tarball "$orig_tarball"
-  pristine-tar commit "$orig_tarball"
+  silent_run pristine-tar commit "$orig_tarball"
 }
 
 . shunit2

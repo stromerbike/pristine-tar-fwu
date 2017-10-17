@@ -6,9 +6,9 @@ pristine-gz - regenerate pristine gz files
 
 =head1 SYNOPSIS
 
-B<pristine-gz> [-vdk] gendelta I<file.gz> I<delta>
+B<pristine-gz> [OPTIONS] gendelta I<file.gz> I<delta>
 
-B<pristine-gz> [-vdk] gengz I<delta> I<file>
+B<pristine-gz> [OPTIONS] gengz I<delta> I<file>
 
 =head1 DESCRIPTION
 
@@ -45,7 +45,7 @@ If the delta filename is "-", pristine-gz reads or writes it to stdio.
 
 =head1 OPTIONS
 
-=over 4
+=over
 
 =item -v
 
@@ -69,7 +69,7 @@ Don't clean up the temporary directory on exit.
 
 =head1 ENVIRONMENT
 
-=over 4
+=over
 
 =item B<TMPDIR>
 
@@ -118,8 +118,14 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-gz [-vdk] gendelta file.gz delta\n";
-  print STDERR "       pristine-gz [-vdk] gengz delta file\n";
+  print STDERR "Usage: pristine-gz [OPTIONS] gendelta file.gz delta
+       pristine-gz [OPTIONS] gengz delta file
+Options:
+       -d, --debug            Turn on debugging output
+       -v, --verbose          Turn on verbose output
+       -k, --keep             Don't delete temporary files
+       -h, --help             Display usage information
+"
 }
 
 sub readgzip {

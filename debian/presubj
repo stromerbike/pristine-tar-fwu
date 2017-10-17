@@ -1,0 +1,10 @@
+Reporting pristine-tar bugs
+---------------------------
+
+If you are about to report a bug about pristine-tar being unable to reproduce a
+given upstream tarball, *please* make sure to include in your bug report
+information that will allow the pristine-tar maintainers to actually *download*
+the original tarball with which you had problems.
+
+Without the original tarball itself, it is very difficult to fully understand
+(and fix) the problem.

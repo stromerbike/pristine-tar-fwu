@@ -6,9 +6,9 @@ pristine-bz2 - regenerate pristine bz2 files
 
 =head1 SYNOPSIS
 
-B<pristine-bz2> [-vdk] gendelta I<file.bz2> I<delta>
+B<pristine-bz2> [OPTIONS] gendelta I<file.bz2> I<delta>
 
-B<pristine-bz2> [-vdk] genbz2 I<delta> I<file>
+B<pristine-bz2> [OPTIONS] genbz2 I<delta> I<file>
 
 =head1 DESCRIPTION
 
@@ -40,7 +40,7 @@ If the delta filename is "-", pristine-bz2 reads or writes it to stdio.
 
 =head1 OPTIONS
 
-=over 4
+=over
 
 =item -v
 
@@ -62,7 +62,7 @@ Try harder to determine how to generate deltas of difficult bz2 files.
 
 =head1 ENVIRONMENT
 
-=over 4
+=over
 
 =item B<TMPDIR>
 
@@ -107,8 +107,14 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-bz2 [-vdkt] gendelta file.bz2 delta\n";
-  print STDERR "       pristine-bz2 [-vdkt] genbz2 delta file\n";
+  print STDERR "Usage: pristine-bz2 [OPTIONS] gendelta file.bz2 delta
+       pristine-bz2 [OPTIONS] genbz2 delta file
+Options:
+       -d, --debug            Turn on debugging output
+       -v, --verbose          Turn on verbose output
+       -k, --keep             Don't delete temporary files
+       -h, --help             Display usage information
+";
 }
 
 sub readbzip2 {
