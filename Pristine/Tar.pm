@@ -10,8 +10,8 @@ use Getopt::Long;
 use IPC::Open2;
 use Exporter q{import};
 
-our @EXPORT = qw(error message debug vprint doit try_doit doit_redir
-  tempdir dispatch comparefiles version_from_env
+our @EXPORT = qw(error message debug vprint cleanup doit try_doit doit_redir
+  tempdir tempdir_src tempdir_tar dispatch comparefiles version_from_env
   $verbose $debug $keep $help);
 
 our $verbose = 0;
@@ -41,6 +41,10 @@ sub vprint {
   message(@_) if $verbose;
 }
 
+sub cleanup {
+  doit(@_) if !$keep;
+}
+
 sub doit {
   if (try_doit(@_) != 0) {
     error "command failed: @_";
@@ -67,8 +71,24 @@ sub doit_redir {
 
 sub tempdir {
   return File::Temp::tempdir(
-    "pristine-tar.XXXXXXXXXX",
-    TMPDIR  => 1,
+    "fwu-tmp.XXXXXXXXXX",
+    DIR     => $ENV{'TMPDIR'} // File::Spec->tmpdir,
+    CLEANUP => !$keep
+  );
+}
+
+sub tempdir_src {
+  return File::Temp::tempdir(
+    "fwu-src.XXXXXXXXXX",
+    DIR     => $ENV{'TMPDIR_SRC'} // File::Spec->tmpdir,
+    CLEANUP => !$keep
+  );
+}
+
+sub tempdir_tar {
+  return File::Temp::tempdir(
+    "fwu-tar.XXXXXXXXXX",
+    DIR     => $ENV{'TMPDIR_TAR'} // File::Spec->tmpdir,
     CLEANUP => !$keep
   );
 }

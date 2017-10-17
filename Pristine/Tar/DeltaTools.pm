@@ -48,7 +48,7 @@ sub do_xdelta_diff {
 
 sub try_xdelta3_patch {
   my ($fromfile, $diff, $tofile) = @_;
-  return try_doit("xdelta3", "decode", "-f", "-D", "-s",
+  return try_doit("xdelta3", "decode", "-S", "lzma", "-9", "-D", "-s",
     $fromfile, $diff, $tofile) >> 8;
 }
 
