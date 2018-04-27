@@ -114,6 +114,14 @@ Debug mode.
 
 Don't clean up the temporary directory on exit.
 
+=item --xdelta3-patch-pre-cmd=command
+
+Use this option to specify a command to be executed before calling xdelta3 decode.
+
+=item --xdelta3-patch-post-cmd=command
+
+Use this option to specify a command to be executed after calling xdelta3 decode.
+
 =item -m message
 
 =item --message=message
@@ -306,7 +314,7 @@ use constant {
 my $recompress = 0;
 my $recompress_theshold_bytes = 524288000;
 my $recompress_theshold_percent = 30;
-my ($message, $signature_file);
+my ($message, $signature_file, $xdelta3_patch_pre_cmd, $xdelta3_patch_post_cmd);
 my $genversion =
   version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
 
@@ -331,6 +339,8 @@ dispatch(
     "r|recompress!"      => \$recompress,
     "B|recompress-threshold-bytes=i" => \$recompress_theshold_bytes,
     "P|recompress-threshold-percent=i" => \$recompress_theshold_percent,
+    "xdelta3-patch-pre-cmd=s" => \$xdelta3_patch_pre_cmd,
+    "xdelta3-patch-post-cmd=s" => \$xdelta3_patch_post_cmd,
   },
 );
 
@@ -357,6 +367,10 @@ Options:
        -B N, --recompress-threshold-percent=N
                                  Recompress tarball if the delta file is
                                  larger than N% of the tarball size.
+       --xdelta3-patch-pre-cmd=CMD
+                                 Command to be executed before xdelta3 decode.
+       --xdelta3-patch-post-cmd=CMD
+                                 Command to be executed after xdelta3 decode.
 ";
 }
 
@@ -619,7 +633,13 @@ sub gentar {
     if ($version eq XDELTA || $version eq XDELTA_LONG) {
       $ret = try_xdelta_patch($recreatetarball, $delta->{delta}, $out);
     } elsif ($version eq XDELTA3) {
+      if (defined $xdelta3_patch_pre_cmd) {
+        doit($xdelta3_patch_pre_cmd)
+      }
       $ret = try_xdelta3_patch($recreatetarball, $delta->{delta}, $out);
+      if (defined $xdelta3_patch_post_cmd) {
+        doit($xdelta3_patch_post_cmd)
+      }
     } else {
       die "Unknown version: $version!";
     }
