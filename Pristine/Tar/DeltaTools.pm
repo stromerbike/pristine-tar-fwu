@@ -13,7 +13,8 @@ use strict;
 
 use Exporter q{import};
 our @EXPORT = qw(try_xdelta_patch do_xdelta_patch try_xdelta_diff do_xdelta_diff
-  try_xdelta3_patch do_xdelta3_patch try_xdelta3_diff do_xdelta3_diff);
+  try_xdelta3_patch try_xdelta3_patch_rate_limit do_xdelta3_patch
+  try_xdelta3_diff do_xdelta3_diff);
 
 #
 # xdelta
@@ -50,6 +51,13 @@ sub try_xdelta3_patch {
   my ($fromfile, $diff, $tofile) = @_;
   return try_doit("xdelta3", "decode", "-f", "-D", "-s",
     $fromfile, $diff, $tofile) >> 8;
+}
+
+sub try_xdelta3_patch_rate_limit {
+  my ($fromfile, $diff, $rateLimit, $tofile) = @_;
+  return try_doit("xdelta3 decode -f -c -D -s " .
+    $fromfile . " " . $diff . " | pv -L " . $rateLimit .
+    " | cat > " . $tofile) >> 8;
 }
 
 sub do_xdelta3_patch {
