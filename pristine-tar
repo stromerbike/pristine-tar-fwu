@@ -114,19 +114,19 @@ Debug mode.
 
 Don't clean up the temporary directory on exit.
 
+=item -l bandwidth
+
+=item --bwlimit=bandwidth
+
+Use this option to specify a bandwidth limit for copying source files.
+For possible values see --bwlimit on https://linux.die.net/man/1/rsync
+
 =item -L rate
 
 =item --rate-limit=rate
 
 Use this option to specify a rate limit for the gentar tarball creation.
-
-=item --xdelta3-patch-pre-cmd=command
-
-Use this option to specify a command to be executed before calling xdelta3 decode.
-
-=item --xdelta3-patch-post-cmd=command
-
-Use this option to specify a command to be executed after calling xdelta3 decode.
+For possible values see -L on https://linux.die.net/man/1/pv
 
 =item -m message
 
@@ -320,7 +320,7 @@ use constant {
 my $recompress = 0;
 my $recompress_theshold_bytes = 524288000;
 my $recompress_theshold_percent = 30;
-my ($rate_limit, $message, $signature_file, $xdelta3_patch_pre_cmd, $xdelta3_patch_post_cmd);
+my ($bwlimit, $rate_limit, $message, $signature_file);
 my $genversion =
   version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
 
@@ -340,14 +340,13 @@ dispatch(
     validate => [ \&validate, 2],
   },
   options => {
+    "l|bwlimit=s"        => \$bwlimit,
     "L|rate-limit=s"     => \$rate_limit,
     "m|message=s"        => \$message,
     "s|signature-file=s" => \$signature_file,
     "r|recompress!"      => \$recompress,
     "B|recompress-threshold-bytes=i" => \$recompress_theshold_bytes,
     "P|recompress-threshold-percent=i" => \$recompress_theshold_percent,
-    "xdelta3-patch-pre-cmd=s" => \$xdelta3_patch_pre_cmd,
-    "xdelta3-patch-post-cmd=s" => \$xdelta3_patch_post_cmd,
   },
 );
 
@@ -364,6 +363,9 @@ Options:
        -v, --verbose             Turn on verbose output
        -k, --keep                Don't delete temporary files
        -h, --help                Display usage information
+       -l BANDWIDTH, --bwlimit==BANDWIDTH
+                                 Set a bandwidth limit for
+                                 copying source files
        -L RATE, --rate-limit=RATE
                                  Set a rate limit for the
                                  gentar tarball creation
@@ -377,10 +379,6 @@ Options:
        -B N, --recompress-threshold-percent=N
                                  Recompress tarball if the delta file is
                                  larger than N% of the tarball size.
-       --xdelta3-patch-pre-cmd=CMD
-                                 Command to be executed before xdelta3 decode.
-       --xdelta3-patch-post-cmd=CMD
-                                 Command to be executed after xdelta3 decode.
 ";
 }
 
@@ -445,14 +443,10 @@ sub recreatetarball {
   }
 
   doit("mkdir", "$tempdir/workdir");
-  foreach my $file (@manifest) {
-    my $unquoted_file = unquote_filename($file);
-    if (! -l "$source/$unquoted_file" && -d "$source/$unquoted_file") {
-      doit("mkdir", "$tempdir/workdir$subdir/$unquoted_file");
-    }
-    else {
-      doit("cp", "-a", "$source/$unquoted_file", "$tempdir/workdir$subdir/$unquoted_file");
-    }
+  if (defined $bwlimit) {
+    doit("rsync -a --bwlimit=" . "$bwlimit" . " --files-from=" . "$tempdir/manifest" . " . " . "$tempdir/workdir$subdir/");
+  } else {
+    doit("rsync -a" . " --files-from=" . "$tempdir/manifest" . " . " . "$tempdir/workdir$subdir/");
   }
   if ($options{clobber_source}) {
     doit("rm", "-rf", $source);
@@ -643,16 +637,10 @@ sub gentar {
     if ($version eq XDELTA || $version eq XDELTA_LONG) {
       $ret = try_xdelta_patch($recreatetarball, $delta->{delta}, $out);
     } elsif ($version eq XDELTA3) {
-      if (defined $xdelta3_patch_pre_cmd) {
-        doit($xdelta3_patch_pre_cmd)
-      }
       if (defined $rate_limit) {
         $ret = try_xdelta3_patch_rate_limit($recreatetarball, $delta->{delta}, $rate_limit, $out);
       } else {
         $ret = try_xdelta3_patch($recreatetarball, $delta->{delta}, $out);
-      }
-      if (defined $xdelta3_patch_post_cmd) {
-        doit($xdelta3_patch_post_cmd)
       }
     } else {
       die "Unknown version: $version!";

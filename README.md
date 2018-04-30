@@ -4,14 +4,13 @@ A fork of https://joeyh.name/code/pristine-tar adapted for performing over the a
 ## Goals
 * Recreation of tarballs from an active system partition (incl. root file system and additionally kernel).
 * Reduction of used bandwidth for downloading updates.
-* Usage of commands included in BusyBox where possible.
 * Modification of original pristine-tar source only where necessary in order to facilitate updating to newer pristine-tar versions.
 
 ## Changes made to pristine-tar
 * The commands gendelta and gentar have been made more robust by only considering entries mentioned in the manifest file. This is useful when generating a tarball from an active system partition where hardware devices are mounted as files such as /sys/class/tty or /dev/tty.
 * The command gendelta has been changed to use LZMA (with compression level 9) for the generation of delta files to decrease their size.
 * The command validate has been added to validate an existing tarball using the specified delta file.
-* The options --xdelta3-patch-pre-cmd and --xdelta3-patch-post-cmd have been added. This is useful for example when xdelta3 decode shall be run with a lower priority or some resource constraints. In this case e.g. systemd's set-property can be called before and after xdelta3 decode.
+* The option -l resp. --bwlimit has been added to limit the bandwidth at which source files are being copied.
 * The option -L resp. --rate-limit has been added to limit the rate at which gentar writes the tarball.
 * All files in the recreated tarball have mode 0755 to match the original Yocto tarball as closely as possible and thus reducing the size of the delta.
 * The TMPDIR for source and tar files can optionally be set via TMPDIR_SRC and TMPDIR_TAR.
