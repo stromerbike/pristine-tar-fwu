@@ -444,9 +444,9 @@ sub recreatetarball {
 
   doit("mkdir", "$tempdir/workdir");
   if (defined $bwlimit) {
-    doit("rsync -a --bwlimit=" . "$bwlimit" . " --files-from=" . "$tempdir/manifest" . " . " . "$tempdir/workdir$subdir/");
+    doit("rsync -a --bwlimit=" . "$bwlimit" . " --files-from=" . "$tempdir/manifest" . " $source " . "$tempdir/workdir$subdir/");
   } else {
-    doit("rsync -a" . " --files-from=" . "$tempdir/manifest" . " . " . "$tempdir/workdir$subdir/");
+    doit("rsync -a" . " --files-from=" . "$tempdir/manifest" . " $source " . "$tempdir/workdir$subdir/");
   }
   if ($options{clobber_source}) {
     doit("rm", "-rf", $source);
