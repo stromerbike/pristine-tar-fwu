@@ -684,6 +684,8 @@ sub genmanifest {
     chomp;
     # ./ or / in the manifest just confuses tar
     s/^\.?\/+//;
+    # / at the end of a line in the manifest would make rsync to mirror the entire directory
+    s/\/$//;
     print OUT "$_\n" if length $_;
   }
   close IN;
